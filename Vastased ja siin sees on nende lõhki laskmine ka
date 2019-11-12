@@ -1,0 +1,39 @@
+#enne main loopi
+#Meteoriidid nendega on see jama, et ma pole piire pannud, et kui läheb window piiridest välja ss peaks uuesti ülevalt alla tulema
+meteoriit_image = []
+meteoriitX = []
+meteoriitY = []
+meteoriitY_change = []
+meteoriitide_arv = 4
+for i in range(meteoriitide_arv):
+    meteoriit_image.append(pygame.image.load("asteroid.png").convert())
+    meteoriitX.append (random.randint(0,530))
+    meteoriitY.append (random.randint(9,9))
+    meteoriitY_change.append (40)
+
+def meteoriit(x,y,i):
+    window.blit(meteoriit_image[i],(x,y))
+
+
+
+#Collision
+def collision(meteoriitX,meteoriitY,laserX,laserY):
+    vahemaa = math.sqrt((math.pow(meteoriitX-laserX,2))+(math.pow(meteoriitY-laserY,2)))
+    if vahemaa < 27:
+        return True
+    else:
+        return False
+        
+#main loopis
+    #Meteoriidi langemine (Probleem on selles, et langeb sinise kasti pealt läbi)
+    for i in range(meteoriitide_arv):
+        meteoriitY [i]+= meteoriitY_change [i]
+        if meteoriitY [i] > 0:
+            meteoriitY_change[i] = 1
+        kokkupõrge = collision(meteoriitX[i],meteoriitY[i],laserX,laserY)
+        if kokkupõrge:
+            laserY = y
+            laser_state = "ready"
+            #score += 1
+            meteoriitX[i] = random.randint(0,560)
+            meteoriitY[i] = random.randint(9,9)
