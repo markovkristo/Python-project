@@ -26,6 +26,7 @@ background = (31, 31, 31)
 # SETUP
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
 font = pygame.font.Font(pygame.font.get_default_font(), font_size)
 
 window = pygame.display.set_mode((wind_laius,wind_kõrgus))
@@ -40,6 +41,11 @@ kõrgus = laev.get_height()
 
 x = padding
 y = wind_kõrgus-2*padding-scoreboard_kõrgus - kõrgus
+
+# Heli
+pygame.mixer.music.load("DigitalZen.mp3")
+pygame.mixer.music.play(-1, 0.0)
+pygame.mixer.music.set_volume(0.3)
 
 def delay(n = 0.15):
     time.sleep(n)
