@@ -2,15 +2,14 @@
 import pygame
 
 FPS = 120
-wind_laius = 800
-wind_kõrgus = 600
-x = 50
-y = 450
+wind_laius = 600
+wind_kõrgus = 800
 padding = 10
+scoreboard_kõrgus = 100
 
-laius = 20
-kõrgus = 20
 kiirus = 5
+x = padding
+y = wind_kõrgus-padding-scoreboard_kõrgus
 
 # Värvid
 WHITE = (255, 255, 255)
@@ -20,10 +19,6 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 background = (31, 31, 31)
 
-# Pilt
-# Ajutiselt debugi jaoks välja kommenteeritud
-# See tuleb ka alati kaasa panna githubi vms!
-#laev = pygame.image.load("playerShip1_green.png")
 
 # Aken
 pygame.init()
@@ -31,12 +26,25 @@ window = pygame.display.set_mode((wind_laius,wind_kõrgus))
 pygame.display.set_caption("Rip off Space Invaders")
 aeg = pygame.time.Clock()
 
+# Pilt
+# Ajutiselt debugi jaoks välja kommenteeritud
+# See tuleb ka alati kaasa panna githubi vms!
+laev = pygame.image.load("playerShip1_green.png").convert()
+
+laius = laev.get_width()
+kõrgus = laev.get_height()
+
+x = padding
+y = wind_kõrgus-2*padding-scoreboard_kõrgus - kõrgus
+
 # Mängja 
 def redraw():  
-    window.fill(background)
-    #window.blit(laev,(x,y)) # Ajutine
-    pygame.draw.rect(window, RED, (x, y, laius,kõrgus)) # Ajutine
+    window.fill(RED)
+    pygame.draw.rect(window, background, (padding/2, padding/2, wind_laius-padding , wind_kõrgus-padding))
+    pygame.draw.rect(window, BLUE, (padding,wind_kõrgus-padding-scoreboard_kõrgus, wind_laius-2*padding,scoreboard_kõrgus))
+    window.blit(laev,(x,y)) # Ajutine
     pygame.display.update()
+    
 
 # Main loop
 run = True
@@ -51,13 +59,8 @@ while run:
         x -= kiirus
     if nupud[pygame.K_RIGHT] and x < wind_laius - laius - padding: # Fixed
         x += kiirus
-    if nupud[pygame.K_UP] and y >= kiirus + padding: # Fixed
-        y -= kiirus
-    if nupud[pygame.K_DOWN] and y < wind_kõrgus - kõrgus - padding: # Fixed
-        y += kiirus
-    
+
     redraw()
-    
     
 
 pygame.quit()
