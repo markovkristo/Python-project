@@ -19,6 +19,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+nice_b = (66, 126, 245)
 background = (31, 31, 31)
 
 
@@ -53,7 +54,8 @@ def draw_elem():
     window.fill(RED)
     pygame.draw.rect(window, background, (padding/2, padding/2, wind_laius-padding , wind_kõrgus-padding))
     pygame.draw.rect(window, BLUE, (padding,wind_kõrgus-padding-scoreboard_kõrgus, wind_laius-2*padding,scoreboard_kõrgus))
-
+    
+    
 menüü_valik = 0
 def draw_pausil():
     global font_size
@@ -71,10 +73,18 @@ def draw_pausil():
     window.blit(stats, dest = (y,x[1]))
     window.blit(välju, dest = (y,x[2]))
     
-    
     pygame.draw.rect(window, RED, (y-padding, x[menüü_valik]-padding, y, font_size+2*padding), 3)
-    
     pygame.display.update()
+    
+
+def main_menu():
+    window.fill((66, 126, 245))
+    start = font.render("Press ENTER to START", True, BLACK)
+    y = int(wind_laius - start.get_width())/2
+    pygame.draw.rect(window, RED, (y-padding, 250-padding, y*4.4, font_size+2*padding))
+    window.blit(start, dest = (y, 250))
+    pygame.display.update() 
+    
 
 # Kõik inputiga seonduv
 def nupud():
@@ -120,10 +130,21 @@ def nupud_pausil():
         if menüü_valik == 2:
             run = False
 
+def nupud_alguses():
+    global pause
+    global run_menu
+    
+    nupud = pygame.key.get_pressed()
+    if nupud[pygame.K_RETURN]:
+        run_menu = False
+        pause = False
+        delay()
+
+
 
     
 # Main loop
-run_menu = False
+run_menu = True
 run = True
 pause = True
 stats = False
@@ -151,6 +172,11 @@ while run:
             if stats: # TODO Implement Stats
                 run = False
         if run_menu: # TO DO
-            print('')
+            aeg.tick(FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+            main_menu()
+            nupud_alguses()
             
 pygame.quit()
