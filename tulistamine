@@ -1,0 +1,22 @@
+#see tuleks enne main loopi panna
+laser_image = pygame.image.load("laserBlue03.png").convert()
+laserX = 0
+laserY = y
+laserY_change = 5
+laser_state = "ready"
+
+def laskmine(x,y):
+    global laser_state
+    laser_state = "fire"
+    window.blit(laser_image,(x+16,y+10))
+
+
+#see tuleks main loopi panna
+#Laseri liikumine (Probleem, laser väljub tiivast ning uue laser saab alles, ss lasta kui eelmine on ekraanilt lahkunud)
+    if laserY <= 0 :
+        laserY = y
+        laser_state = "ready"
+    if laser_state is "fire":
+        laskmine(laserX,laserY)
+        laserY -= laserY_change
+    
