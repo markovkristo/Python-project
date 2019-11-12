@@ -28,7 +28,7 @@ pygame.font.init()
 font = pygame.font.Font(pygame.font.get_default_font(), font_size)
 
 window = pygame.display.set_mode((wind_laius,wind_kõrgus))
-pygame.display.set_caption("Rip off Space Invaders")
+pygame.display.set_caption("Spacers Invade")
 aeg = pygame.time.Clock()
 
 
@@ -40,7 +40,7 @@ kõrgus = laev.get_height()
 x = padding
 y = wind_kõrgus-2*padding-scoreboard_kõrgus - kõrgus
 
-def delay(n = 0.2):
+def delay(n = 0.15):
     time.sleep(n)
 
 # Mängja 
