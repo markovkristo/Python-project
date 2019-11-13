@@ -87,7 +87,7 @@ def main_menu():
     window.fill((66, 126, 245))
     start = font.render("Press ENTER to START", True, BLACK)
     y = int(wind_laius - start.get_width())/2
-    pygame.draw.rect(window, RED, (y-padding, 250-padding, y*4.4, font_size+2*padding))
+    pygame.draw.rect(window, (230,0,0), (y-padding, 250-padding, y*4.4, font_size+2*padding))
     window.blit(start, dest = (y, 250))
     pygame.display.update() 
     
