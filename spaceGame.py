@@ -80,7 +80,7 @@ def meteoriitide_liikumine():
             meteoriitY_change[i] = 1
             kokkupõrge = collision(meteoriitX[i],meteoriitY[i],laserX,laserY)
         if kokkupõrge:
-            laserY = y
+            laserY = -50 # SEE SIIN
             laser_state = "ready"
             meteoriitX[i] = random.randint(0,560)
             meteoriitY[i] = random.randint(9,9)
@@ -157,6 +157,7 @@ def nupud():
     global y
     global pause
     global run
+    global laserX
     
     nupud = pygame.key.get_pressed()
 
@@ -166,12 +167,13 @@ def nupud():
         x += kiirus
     if nupud[pygame.K_SPACE]:
         if laser_state is "ready":
-            global laserX
             laserX = x
             laskmine(x,laserY)
     if nupud[pygame.K_ESCAPE]:
         pause = not pause
-        delay()        
+        delay()
+
+        
 def nupud_pausil():
     global pause
     global run
@@ -228,9 +230,14 @@ while run:
         nupud()
         draw_elem()
         redraw()
-        meteoriitide_liikumine()
+        
         laseri_liikumine()
-    pygame.display.update()    
+        meteoriitide_liikumine()
+        
+        pygame.display.update()
+
+
+        
     if pause == True:
         if not run_menu:
             if not stats:
