@@ -1,6 +1,8 @@
 # Siin on suht head disainid jne. https://opengameart.org/content/space-shooter-redux
 import pygame
 import time
+import math
+import random
 
 FPS = 120
 wind_laius = 600
@@ -53,7 +55,7 @@ def delay(n = 0.15):
 # Mängja 
 def redraw():  
     window.blit(laev,(x,y)) # Ajutine
-    pygame.display.update()
+    
 
 #Meteoriidid nendega on see jama, et ma pole piire pannud, et kui läheb window piiridest välja ss peaks uuesti ülevalt alla tulema
 meteoriit_image = []
@@ -162,13 +164,14 @@ def nupud():
         x -= kiirus
     if nupud[pygame.K_RIGHT] and x < wind_laius - laius - padding: # Fixed
         x += kiirus
-	if nupud[pygame.K_SPACE]:
+    if nupud[pygame.K_SPACE]:
         if laser_state is "ready":
+            global laserX
             laserX = x
+            laskmine(x,laserY)
     if nupud[pygame.K_ESCAPE]:
         pause = not pause
         delay()        
-
 def nupud_pausil():
     global pause
     global run
@@ -227,7 +230,7 @@ while run:
         redraw()
         meteoriitide_liikumine()
         laseri_liikumine()
-        
+    pygame.display.update()    
     if pause == True:
         if not run_menu:
             if not stats:
