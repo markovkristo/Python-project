@@ -109,7 +109,7 @@ def laseri_liikumine():
 #Collision
 def collision(meteoriitX,meteoriitY,laserX,laserY):
     vahemaa = math.sqrt((math.pow(meteoriitX-laserX,2))+(math.pow(meteoriitY-laserY,2)))
-    if vahemaa < 27:
+    if vahemaa < 17:
         return True
     else:
         return False
