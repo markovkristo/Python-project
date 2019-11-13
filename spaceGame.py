@@ -54,7 +54,64 @@ def delay(n = 0.15):
 def redraw():  
     window.blit(laev,(x,y)) # Ajutine
     pygame.display.update()
-    
+
+#Meteoriidid nendega on see jama, et ma pole piire pannud, et kui läheb window piiridest välja ss peaks uuesti ülevalt alla tulema
+meteoriit_image = []
+meteoriitX = []
+meteoriitY = []
+meteoriitY_change = []
+meteoriitide_arv = 4
+for i in range(meteoriitide_arv):
+    meteoriit_image.append(pygame.image.load("asteroid.png").convert())
+    meteoriitX.append (random.randint(0,530))
+    meteoriitY.append (random.randint(9,9))
+    meteoriitY_change.append (40)
+
+def meteoriit(x,y,i):
+    window.blit(meteoriit_image[i],(x,y))
+#Meteoriitide liikumine
+def meteoriitide_liikumine():
+    global laserY
+    for i in range(meteoriitide_arv):
+        meteoriitY [i]+= meteoriitY_change [i]
+        if meteoriitY [i] > 0:
+            meteoriitY_change[i] = 1
+            kokkupõrge = collision(meteoriitX[i],meteoriitY[i],laserX,laserY)
+        if kokkupõrge:
+            laserY = y
+            laser_state = "ready"
+            meteoriitX[i] = random.randint(0,560)
+            meteoriitY[i] = random.randint(9,9)
+        meteoriit(meteoriitX[i],meteoriitY[i], i)
+#Laskmine
+laser_image = pygame.image.load("laserBlue03.png").convert()
+laserX = 0
+laserY = y
+laserY_change = 5
+laser_state = "ready"
+
+def laskmine(x,y):
+    global laser_state
+    laser_state = "fire"
+    window.blit(laser_image,(x+16,y+10))
+
+def laseri_liikumine():
+    global laserY
+    global laser_state
+    if laserY < 0:
+        laserY = y
+        laser_state = "ready"
+    if laser_state is "fire":
+        laskmine(laserX,laserY)
+        laserY -= laserY_change
+#Collision
+def collision(meteoriitX,meteoriitY,laserX,laserY):
+    vahemaa = math.sqrt((math.pow(meteoriitX-laserX,2))+(math.pow(meteoriitY-laserY,2)))
+    if vahemaa < 27:
+        return True
+    else:
+        return False
+        
     
 def draw_elem():
     window.fill(RED)
@@ -105,6 +162,9 @@ def nupud():
         x -= kiirus
     if nupud[pygame.K_RIGHT] and x < wind_laius - laius - padding: # Fixed
         x += kiirus
+	if nupud[pygame.K_SPACE]:
+        if laser_state is "ready":
+            laserX = x
     if nupud[pygame.K_ESCAPE]:
         pause = not pause
         delay()        
@@ -165,6 +225,8 @@ while run:
         nupud()
         draw_elem()
         redraw()
+        meteoriitide_liikumine()
+        laseri_liikumine()
         
     if pause == True:
         if not run_menu:
