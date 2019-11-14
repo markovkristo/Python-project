@@ -11,9 +11,13 @@ padding = 10
 scoreboard_kõrgus = 100
 font_size = 36
 
-kiirus = 5
+kiirus = 4
+elud = 10
 x = padding
 y = wind_kõrgus-padding-scoreboard_kõrgus
+
+kills_for_bonus = 0
+killcount = 0
 
 # Värvid
 WHITE = (255, 255, 255)
@@ -49,6 +53,19 @@ pygame.mixer.music.load("DigitalZen.mp3")
 pygame.mixer.music.play(-1, 0.0)
 pygame.mixer.music.set_volume(0.3)
 
+# Meteoriidid
+meteoriit_image = []
+meteoriitX = []
+meteoriitY = []
+meteoriitY_change = []
+meteoriitide_arv = 5
+
+# Laskmine
+laser_image = pygame.image.load("laserBlue03.png").convert()
+laserX = 0
+laserY = y
+laserY_change = 5
+laser_state = "ready"
 
 # Loodud selleks, et peale menüüsse minekut oleks paus,
 # et menüüs liiklemine oleks mugavam, kuid saab kasutada ükskõik kus
@@ -62,18 +79,50 @@ def redraw():
     pygame.display.update()
 
 
-#Meteoriidid nendega on see jama, et ma pole piire pannud, et kui läheb window piiridest välja ss peaks uuesti ülevalt alla tulema
-meteoriit_image = []
-meteoriitX = []
-meteoriitY = []
-meteoriitY_change = []
-meteoriitide_arv = 4
+# SKOORI LUGEMISEGA SEOTUV MANT
+def elus():
+    global elud
+    global pause
+    global run_menu
+    global kills_for_bonus
+    global killcount
+    
+    if elud <= 0:
+        pause = True
+        run_menu = True
+        elud = 10
+        meteoriidid_reset()
+        meteoriitide_genereerimine()
+        kills_for_bonus = 0
+        killcount = 0
+    if kills_for_bonus >= 10:
+        kills_for_bonus = 0
+        elud += 2
+        
 
-for i in range(meteoriitide_arv):
-    meteoriit_image.append(pygame.image.load("asteroid.png").convert())
-    meteoriitX.append (random.randint(0,530))
-    meteoriitY.append (random.randint(9,9))
-    meteoriitY_change.append (40)
+def meteoriidid_reset():
+    global meteoriit_image
+    global meteoriitX
+    global meteoriitY
+    global meteoriitY_change
+    
+    meteoriit_image = []
+    meteoriitX = []
+    meteoriitY = []
+    meteoriitY_change = []
+    
+
+def meteoriitide_genereerimine():
+    global meteoriitide_arv
+    global meteoriitX
+    global meteoriitY
+    global meteoriitY_change
+
+    for i in range(meteoriitide_arv):
+        meteoriit_image.append(pygame.image.load("asteroid.png").convert())
+        meteoriitX.append (random.randint(0,530))
+        meteoriitY.append (random.randint(-200,-150))
+        meteoriitY_change.append(10)
 
 
 def meteoriit(x,y,i):
@@ -83,25 +132,28 @@ def meteoriit(x,y,i):
 # Meteoriitide liikumine
 def meteoriitide_liikumine():
     global laserY
+    global elud
+    global kills_for_bonus
+    global killcount
+    
     for i in range(meteoriitide_arv):
+        if meteoriitY[i] > wind_kõrgus - 2*padding - scoreboard_kõrgus - 30:
+            elud -= 1
+            meteoriitY[i] = random.randint(-250,-50)
+            meteoriitX[i] = random.randint(0,530)
         meteoriitY [i]+= meteoriitY_change [i]
         if meteoriitY [i] > 0:
             meteoriitY_change[i] = 1
             kokkupõrge = collision(meteoriitX[i],meteoriitY[i],laserX,laserY)
-        if kokkupõrge:
-            laserY = -50 # SEE SIIN
-            laser_state = "ready"
-            meteoriitX[i] = random.randint(0,560)
-            meteoriitY[i] = random.randint(9,9)
+            if kokkupõrge:
+                laserY = -50 # SEE SIIN
+                kills_for_bonus += 1
+                killcount += 1
+                laser_state = "ready"
+                meteoriitX[i] = random.randint(0,560)
+                meteoriitY[i] = random.randint(-100,-50)
         meteoriit(meteoriitX[i],meteoriitY[i], i)
 
-
-# Laskmine
-laser_image = pygame.image.load("laserBlue03.png").convert()
-laserX = 0
-laserY = y
-laserY_change = 5
-laser_state = "ready"
 
 def laskmine(x,y):
     global laser_state
@@ -128,13 +180,35 @@ def collision(meteoriitX,meteoriitY,laserX,laserY):
     else:
         return False
 
-
-# Ajutine fix! Joonistab mängule tausta, paddingut arvestades
-def draw_elem():
+# SUHT CRAP INTRO TEST
+def intro():
+    global play_intro
     window.fill(RED)
-    pygame.draw.rect(window, background, (padding/2, padding/2, wind_laius-padding , wind_kõrgus-padding))
-    pygame.draw.rect(window, BLUE, (padding,wind_kõrgus-padding-scoreboard_kõrgus, wind_laius-2*padding,scoreboard_kõrgus))
+    pygame.display.update()
+    delay(2)
+    window.fill(GREEN)
+    pygame.display.update()
+    delay(1)
+    play_intro = False
+    
 
+# Joonistab tausta ning skooriga seonduva
+def draw_elem():
+    global elud
+    global killcount
+    global kills_for_bonus
+    
+    window.fill(RED)
+    pygame.draw.rect(window, background, (padding/2, 0, wind_laius-padding , wind_kõrgus-padding/2))
+    pygame.draw.rect(window, BLUE, (padding,wind_kõrgus-padding-scoreboard_kõrgus, wind_laius-2*padding,scoreboard_kõrgus))
+    
+    hitpoints = font.render("Elud: " + str(elud), True, BLACK)
+    kc = font.render("KC: " + str(killcount), True, BLACK)
+    kb = font.render("2up IN: " + str(10-kills_for_bonus), True, BLACK)
+    
+    window.blit(kb, dest = (330,520))
+    window.blit(kc, dest = (200, 520))
+    window.blit(hitpoints, dest = (30,520))
 
 # Menüüelemendi valimine pausil ning in general pausil ollevate asjade visuaalne pool
 menüü_valik = 0
@@ -237,24 +311,28 @@ run_menu = True
 run = True
 pause = True
 stats = False
+play_intro = False
 
+meteoriitide_genereerimine()
 while run:
     # Kui ei ole paus, mäng käib!!!
-    if pause == False:
+    if not pause:
         aeg.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
 
         nupud()
+        
         draw_elem()
         laseri_liikumine()
         meteoriitide_liikumine()
+        elus()
         redraw()
 
 
     # Kui on pausil
-    if pause == True:
+    if pause:
         if not run_menu:
             if not stats:
                 aeg.tick(FPS)
@@ -277,7 +355,10 @@ while run:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-            main_menu()
-            nupud_alguses()
+            if play_intro: # What a shitty ass intro
+                intro()
+            else:
+                main_menu()
+                nupud_alguses()
 
 pygame.quit()
