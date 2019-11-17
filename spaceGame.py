@@ -4,14 +4,14 @@ import time
 import math
 import random
 
-FPS = 120
+FPS = 140
 wind_laius = 600
 wind_kõrgus = 600
 padding = 10
 scoreboard_kõrgus = 100
 font_size = 36
 
-kiirus = 4
+kiirus = 3.5
 elud = 10
 x = padding
 y = wind_kõrgus-padding-scoreboard_kõrgus
@@ -49,6 +49,11 @@ x = padding
 y = wind_kõrgus-2*padding-scoreboard_kõrgus - kõrgus
 
 # Heli
+heli_tabamus = pygame.mixer.Sound("hit.wav")
+heli_valik = pygame.mixer.Sound("menu.wav")
+heli_laser = pygame.mixer.Sound("laser.wav")
+heli_menüüs = pygame.mixer.Sound("menu.wav")
+
 pygame.mixer.music.load("DigitalZen.mp3")
 pygame.mixer.music.play(-1, 0.0)
 pygame.mixer.music.set_volume(0.3)
@@ -86,6 +91,7 @@ def elus():
     global run_menu
     global kills_for_bonus
     global killcount
+    global FPS
     
     if elud <= 0:
         pause = True
@@ -95,11 +101,13 @@ def elus():
         meteoriitide_genereerimine()
         kills_for_bonus = 0
         killcount = 0
+        FPS = 120
     if kills_for_bonus >= 10:
         kills_for_bonus = 0
         elud += 2
-        
-
+        FPS += 5
+     
+    
 def meteoriidid_reset():
     global meteoriit_image
     global meteoriitX
@@ -121,8 +129,8 @@ def meteoriitide_genereerimine():
     for i in range(meteoriitide_arv):
         meteoriit_image.append(pygame.image.load("asteroid.png").convert())
         meteoriitX.append (random.randint(0,530))
-        meteoriitY.append (random.randint(-200,-150))
-        meteoriitY_change.append(10)
+        meteoriitY.append (random.randint(-250,-50))
+        meteoriitY_change.append(40)
 
 
 def meteoriit(x,y,i):
@@ -146,12 +154,14 @@ def meteoriitide_liikumine():
             meteoriitY_change[i] = 1
             kokkupõrge = collision(meteoriitX[i],meteoriitY[i],laserX,laserY)
             if kokkupõrge:
+                pygame.mixer.Sound.play(heli_tabamus)
                 laserY = -50 # SEE SIIN
                 kills_for_bonus += 1
                 killcount += 1
+                pygame.mixer.Sound.play(heli_tabamus)
                 laser_state = "ready"
                 meteoriitX[i] = random.randint(0,560)
-                meteoriitY[i] = random.randint(-100,-50)
+                meteoriitY[i] = random.randint(-250,-50)
         meteoriit(meteoriitX[i],meteoriitY[i], i)
 
 
@@ -258,11 +268,16 @@ def nupud():
         x += kiirus
     if nupud[pygame.K_SPACE]:
         if laser_state is "ready":
+            pygame.mixer.Sound.play(heli_laser)
             laserX = x
             laskmine(x,laserY)
     if nupud[pygame.K_ESCAPE]:
         pause = not pause
         delay()
+
+# Literally tegin selle selleks, et hiljem oleks lihtsam helifaili vahetades muuta heli
+def heli_menüü():
+    pygame.mixer.Sound.play(heli_menüüs)
 
 
 # Kõik pausi ajal olles inputiga seonduv
@@ -277,16 +292,19 @@ def nupud_pausil():
         pause = not pause
         delay()
     if nupud[pygame.K_DOWN]:
+        heli_menüü()
         menüü_valik += 1
         if menüü_valik > 2:
             menüü_valik = 0
         delay()
     if nupud[pygame.K_UP]:
+        heli_menüü()
         menüü_valik -= 1
         if menüü_valik < 0:
             menüü_valik = 2
         delay()
     if nupud[pygame.K_RETURN]:
+        heli_menüü()
         if menüü_valik == 0:
             pause = not pause
             delay()
@@ -321,12 +339,12 @@ while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
+        print("FPS/RASKUSASTE: " +str(FPS))
         nupud()
-        
         draw_elem()
-        laseri_liikumine()
         meteoriitide_liikumine()
+        laseri_liikumine()
+        
         elus()
         redraw()
 
