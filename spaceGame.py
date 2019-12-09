@@ -11,7 +11,7 @@ padding = 10
 scoreboard_kõrgus = 100
 font_size = 36
 
-kiirus = 3.5
+kiirus = 4.5
 elud = 10
 x = padding
 y = wind_kõrgus-padding-scoreboard_kõrgus
@@ -42,6 +42,8 @@ aeg = pygame.time.Clock()
 
 # Pilt
 laev = pygame.image.load("playerShip1_green.png").convert()
+#laev.set_colorkey(WHITE)
+#laev = pygame.transform.scale(laev,(50,50))
 laius = laev.get_width()
 kõrgus = laev.get_height()
 
@@ -65,11 +67,13 @@ meteoriitY = []
 meteoriitY_change = []
 meteoriitide_arv = 5
 
+
 # Laskmine
 laser_image = pygame.image.load("laserBlue03.png").convert()
+laser_image = pygame.transform.scale(laser_image,(9,32))
 laserX = 0
 laserY = y
-laserY_change = 5
+laserY_change = 7
 laser_state = "ready"
 
 # Loodud selleks, et peale menüüsse minekut oleks paus,
@@ -77,7 +81,7 @@ laser_state = "ready"
 def delay(n = 0.15):
     time.sleep(n)
 
-# Joonistab laeva ja refreshib ekraani.
+# Joonistab a ja refreshib ekraani.
 # Kutsuda välja viimase funktsioonina mängimise ajal!!!
 def redraw():
     window.blit(laev,(x,y)) # Ajutine
@@ -130,7 +134,7 @@ def meteoriitide_genereerimine():
         meteoriit_image.append(pygame.image.load("asteroid.png").convert())
         meteoriitX.append (random.randint(0,530))
         meteoriitY.append (random.randint(-250,-50))
-        meteoriitY_change.append(40)
+        meteoriitY_change.append(30)
 
 
 def meteoriit(x,y,i):
