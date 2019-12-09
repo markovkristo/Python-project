@@ -41,9 +41,9 @@ aeg = pygame.time.Clock()
 
 
 # Pilt
-laev = pygame.image.load("playerShip1_green.png").convert()
-#laev.set_colorkey(WHITE)
-#laev = pygame.transform.scale(laev,(50,50))
+laev = pygame.image.load("playerShip2_green.png").convert()
+laev.set_colorkey(WHITE)
+laev = pygame.transform.scale(laev,(50,50))
 laius = laev.get_width()
 kõrgus = laev.get_height()
 
