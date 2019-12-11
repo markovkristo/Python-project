@@ -11,7 +11,7 @@ padding = 10
 scoreboard_kõrgus = 100
 font_size = 36
 
-kiirus = 4.5
+kiirus = 5
 elud = 10
 x = padding
 y = wind_kõrgus-padding-scoreboard_kõrgus
@@ -41,9 +41,9 @@ aeg = pygame.time.Clock()
 
 
 # Pilt
-laev = pygame.image.load("playerShip1_green.png").convert()
-#laev.set_colorkey(WHITE)
-#laev = pygame.transform.scale(laev,(50,50))
+laev = pygame.image.load("playerShip2_green.png").convert()
+laev.set_colorkey(BLACK)
+laev = pygame.transform.scale(laev,(50,50))
 laius = laev.get_width()
 kõrgus = laev.get_height()
 
@@ -172,7 +172,7 @@ def meteoriitide_liikumine():
 def laskmine(x,y):
     global laser_state
     laser_state = "fire"
-    window.blit(laser_image,(x+16,y+10))
+    window.blit(laser_image,(x+21,y+10)) # selle peaks panema x+20, et kuulid hakkaksid täpselt laeva ninast tulema, aga kui see see panna x+20 ss metoriitide hitboxsid lähevad valeks
 
 
 def laseri_liikumine():
@@ -189,7 +189,7 @@ def laseri_liikumine():
 # Collision
 def collision(meteoriitX,meteoriitY,laserX,laserY):
     vahemaa = math.sqrt((math.pow(meteoriitX-laserX,2))+(math.pow(meteoriitY-laserY,2)))
-    if vahemaa < 17:
+    if vahemaa < 23:
         return True
     else:
         return False
