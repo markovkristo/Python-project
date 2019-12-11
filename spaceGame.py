@@ -11,7 +11,7 @@ padding = 10
 scoreboard_kõrgus = 100
 font_size = 36
 
-kiirus = 5
+kiirus = 4.5
 elud = 10
 x = padding
 y = wind_kõrgus-padding-scoreboard_kõrgus
@@ -134,10 +134,11 @@ def meteoriitide_genereerimine():
         meteoriit_image.append(pygame.image.load("asteroid.png").convert())
         meteoriitX.append (random.randint(0,530))
         meteoriitY.append (random.randint(-250,-50))
-        meteoriitY_change.append(30)
+        meteoriitY_change.append (30)
 
 
 def meteoriit(x,y,i):
+    meteoriit_image[i].set_colorkey(BLACK)
     window.blit(meteoriit_image[i],(x,y))
 
 
