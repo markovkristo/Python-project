@@ -3,6 +3,7 @@ import pygame
 import time
 import math
 import random
+import shelve
 
 FPS = 140
 wind_laius = 600
@@ -41,7 +42,7 @@ aeg = pygame.time.Clock()
 
 
 # Pilt
-laev = pygame.image.load("playerShip2_green.png").convert()
+laev = pygame.image.load("img/playerShip2_green.png").convert()
 laev.set_colorkey(BLACK)
 laev = pygame.transform.scale(laev,(50,50))
 laius = laev.get_width()
@@ -51,12 +52,12 @@ x = padding
 y = wind_kõrgus-2*padding-scoreboard_kõrgus - kõrgus
 
 # Heli
-heli_tabamus = pygame.mixer.Sound("hit.wav")
-heli_valik = pygame.mixer.Sound("menu.wav")
-heli_laser = pygame.mixer.Sound("laser.wav")
-heli_menüüs = pygame.mixer.Sound("menu.wav")
+heli_tabamus = pygame.mixer.Sound("audio/hit.wav")
+heli_valik = pygame.mixer.Sound("audio/menu.wav")
+heli_laser = pygame.mixer.Sound("audio/laser.wav")
+heli_menüüs = pygame.mixer.Sound("audio/menu.wav")
 
-pygame.mixer.music.load("DigitalZen.mp3")
+pygame.mixer.music.load("audio/DigitalZen.mp3")
 pygame.mixer.music.play(-1, 0.0)
 pygame.mixer.music.set_volume(0.3)
 
@@ -69,7 +70,7 @@ meteoriitide_arv = 5
 
 
 # Laskmine
-laser_image = pygame.image.load("laserBlue03.png").convert()
+laser_image = pygame.image.load("img/laserBlue03.png").convert()
 laser_image = pygame.transform.scale(laser_image,(9,32))
 laserX = 0
 laserY = y
@@ -83,8 +84,9 @@ def delay(n = 0.15):
 
 # Joonistab a ja refreshib ekraani.
 # Kutsuda välja viimase funktsioonina mängimise ajal!!!
+
 def redraw():
-    window.blit(laev,(x,y)) # Ajutine
+    window.blit(laev,(x,y))
     pygame.display.update()
 
 
@@ -98,6 +100,13 @@ def elus():
     global FPS
     
     if elud <= 0:
+        d = shelve.open("score.txt")
+        score = d["score"]
+        if killcount > score:
+            d["score"] = killcount
+        d.close()
+        draw_endgame(killcount)
+        delay(3)
         pause = True
         run_menu = True
         elud = 10
@@ -131,7 +140,7 @@ def meteoriitide_genereerimine():
     global meteoriitY_change
 
     for i in range(meteoriitide_arv):
-        meteoriit_image.append(pygame.image.load("asteroid.png").convert())
+        meteoriit_image.append(pygame.image.load("img/asteroid.png").convert())
         meteoriitX.append (random.randint(0,530))
         meteoriitY.append (random.randint(-250,-50))
         meteoriitY_change.append (30)
@@ -151,10 +160,12 @@ def meteoriitide_liikumine():
     
     for i in range(meteoriitide_arv):
         if meteoriitY[i] > wind_kõrgus - 2*padding - scoreboard_kõrgus - 30:
+            pygame.mixer.Sound.play(heli_tabamus)
             elud -= 1
             meteoriitY[i] = random.randint(-250,-50)
             meteoriitX[i] = random.randint(0,530)
         meteoriitY [i]+= meteoriitY_change [i]
+        
         if meteoriitY [i] > 0:
             meteoriitY_change[i] = 1
             kokkupõrge = collision(meteoriitX[i],meteoriitY[i],laserX,laserY)
@@ -163,10 +174,10 @@ def meteoriitide_liikumine():
                 laserY = -50 # SEE SIIN
                 kills_for_bonus += 1
                 killcount += 1
-                pygame.mixer.Sound.play(heli_tabamus)
                 laser_state = "ready"
                 meteoriitX[i] = random.randint(0,560)
                 meteoriitY[i] = random.randint(-250,-50)
+                
         meteoriit(meteoriitX[i],meteoriitY[i], i)
 
 
@@ -215,9 +226,9 @@ def draw_elem():
     
     window.fill(RED)
     pygame.draw.rect(window, background, (padding/2, 0, wind_laius-padding , wind_kõrgus-padding/2))
-    pygame.draw.rect(window, BLUE, (padding,wind_kõrgus-padding-scoreboard_kõrgus, wind_laius-2*padding,scoreboard_kõrgus))
+    pygame.draw.rect(window, (30, 36, 245), (padding,wind_kõrgus-padding-scoreboard_kõrgus, wind_laius-2*padding,scoreboard_kõrgus))
     
-    hitpoints = font.render("Elud: " + str(elud), True, BLACK)
+    hitpoints = font.render("HP: " + str(elud), True, BLACK)
     kc = font.render("KC: " + str(killcount), True, BLACK)
     kb = font.render("2up IN: " + str(10-kills_for_bonus), True, BLACK)
     
@@ -245,7 +256,26 @@ def draw_pausil():
 
     pygame.draw.rect(window, RED, (y-padding, x[menüü_valik]-padding, y, font_size+2*padding), 3)
     pygame.display.update()
+    
+# Statistikat vaadates visuaalne pool
+def draw_stats():
+    window.fill(background)
+    d = shelve.open('score.txt')
+    score = d['score']
+    d.close()
+    hs = font.render("Highscore: " + str(score), True, (230,230,230))
+    y = (wind_laius - hs.get_width())/2
+    window.blit(hs, dest = (y, 250))
+    pygame.display.update()
+    
 
+def draw_endgame(kc):
+    window.fill(nice_b)
+    hs = font.render("Score: " + str(kc), True, (230,230,230))
+    y = (wind_laius - hs.get_width())/2
+    window.blit(hs, dest = (y, 250))
+    pygame.display.update()
+    
 
 # Peamenüüga kõik visuaalne pool
 def main_menu():
@@ -267,9 +297,9 @@ def nupud():
 
     nupud = pygame.key.get_pressed()
 
-    if nupud[pygame.K_LEFT] and x >= kiirus + padding: # Fixed
+    if nupud[pygame.K_LEFT] and x >= kiirus + padding:
         x -= kiirus
-    if nupud[pygame.K_RIGHT] and x < wind_laius - laius - padding: # Fixed
+    if nupud[pygame.K_RIGHT] and x < wind_laius - laius - padding:
         x += kiirus
     if nupud[pygame.K_SPACE]:
         if laser_state is "ready":
@@ -277,44 +307,72 @@ def nupud():
             laserX = x
             laskmine(x,laserY)
     if nupud[pygame.K_ESCAPE]:
-        pause = not pause
         delay()
+        pause = not pause
+        
 
 # Literally tegin selle selleks, et hiljem oleks lihtsam helifaili vahetades muuta heli
 def heli_menüü():
     pygame.mixer.Sound.play(heli_menüüs)
 
 
+def nupud_stats():
+    global stats
+    global pause
+    
+    nupud = pygame.key.get_pressed()
+    
+    if nupud[pygame.K_ESCAPE]:
+        delay()
+        heli_menüü()
+        stats = not stats
+        pause = not pause
+    if nupud[pygame.K_RETURN]:
+        delay()
+        heli_menüü()
+        stats = not stats
+     
 # Kõik pausi ajal olles inputiga seonduv
 def nupud_pausil():
     global pause
     global run
     global menüü_valik
+    global stats
 
     nupud = pygame.key.get_pressed()
 
     if nupud[pygame.K_ESCAPE]:
-        pause = not pause
         delay()
+        pause = not pause
+        
     if nupud[pygame.K_DOWN]:
         heli_menüü()
+        delay()
+        
         menüü_valik += 1
         if menüü_valik > 2:
             menüü_valik = 0
-        delay()
+        
     if nupud[pygame.K_UP]:
         heli_menüü()
+        delay()
+        
         menüü_valik -= 1
         if menüü_valik < 0:
             menüü_valik = 2
-        delay()
+        
     if nupud[pygame.K_RETURN]:
         heli_menüü()
         if menüü_valik == 0:
-            pause = not pause
             delay()
+            pause = not pause 
+        if menüü_valik == 1:
+            delay()
+            stats = True 
         if menüü_valik == 2:
+            delay()
             run = False
+            
 
 
 # Kõik inputiga seonduv mängu alguses / Start menüüs
@@ -324,9 +382,12 @@ def nupud_alguses():
 
     nupud = pygame.key.get_pressed()
     if nupud[pygame.K_RETURN]:
+        heli_menüü()
+        delay()
+        
         run_menu = False
         pause = False
-        delay()
+        
 
 
 # Main loop
@@ -334,6 +395,9 @@ run_menu = True
 run = True
 pause = True
 stats = False
+
+# INTROT EI EKSISTEERI, KUID KUI SEE UNCOMMENTIDA
+# SIIS FLASHIB EKRAAN KAHTE VÄRVI JA LÄHEB MENÜÜSSE
 play_intro = False
 
 meteoriitide_genereerimine()
@@ -367,7 +431,12 @@ while run:
 
             # Stats menu
             if stats: # TODO Implement Stats
-                run = False
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+                draw_stats()
+                nupud_stats()
+                
 
         # Algselt laetav peamenüü
         # run_menu = False
